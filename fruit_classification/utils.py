@@ -144,7 +144,7 @@ def foo(image):
 
     # Now create a mask of logo and create its inverse mask also
     img2gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    ret, mask = cv2.threshold(img2gray, 10, 255, cv2.THRESH_BINARY)
+    ret, mask = cv2.threshold(img2gray, 1, 255, cv2.THRESH_BINARY)
     mask_inv = cv2.bitwise_not(mask)
 
     # Now black-out the area of logo in ROI

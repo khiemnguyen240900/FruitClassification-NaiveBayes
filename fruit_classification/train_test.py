@@ -44,7 +44,7 @@ train_labels = os.listdir(train_path)
 train_labels.sort()
 
 # get the training labels
-test_labels = os.listdir(test_path)
+test_labels = os.listdir(train_path)
 
 # sort the training labels
 test_labels.sort()
@@ -80,6 +80,8 @@ global_labels = np.array(global_labels_string)
 h5f_data.close()
 h5f_label.close()
 
+print(test_labels)
+
 # verify the shape of the feature vector and labels
 print("[STATUS] features shape: {}".format(global_features.shape))
 print("[STATUS] labels shape: {}".format(global_labels.shape))
@@ -88,7 +90,7 @@ print("[STATUS] training started...")
 # clf = GaussianNB()
 clf1 = RandomForestClassifier(n_estimators=num_trees, random_state=seed)
 clf2 = KNeighborsClassifier()
-clf3 = GaussianNB()
+clf3 = GaussianNB() #..
 clf4 = LinearDiscriminantAnalysis()
 clf5 = LogisticRegression(random_state=seed)
 clf6 = DecisionTreeClassifier(random_state=seed)
@@ -102,87 +104,75 @@ clf5.fit(trainDataGlobal, trainLabelsGlobal)
 clf6.fit(trainDataGlobal, trainLabelsGlobal)
 clf7.fit(trainDataGlobal, trainLabelsGlobal)
 
-print(trainLabelsGlobal)
+#print(trainLabelsGlobal)
 
 test_features = []
 test_results = []
 
-# for testing_name in test_labels:
-#     # join the training data path and each species training folder
-#     dir = os.path.join(test_path, testing_name)
-#     # get the current training label
-#     current_label = testing_name
-#     # loop over the images in each sub-folder
-#     for x in range(1, images_per_class + 1):
-#         # get the image file name
-#         index = random.randint(1, 80);
-#         file = dir + "/" + "image (" + str(index) + ").jpg"
-#         image = cv2.imread(file)
-#         image = cv2.resize(image, fixed_size)
-#         ####################################
-#         fv_hu_moments = fd_hu_moments(image)
-#         fv_haralick = fd_haralick(image)
-#         fv_histogram = fd_histogram(image)
-#
-#         ###################################
-#         test_results.append(current_label)
-#         test_features.append(np.hstack([fv_histogram, fv_hu_moments, fv_haralick]))
-for x in range(1, 51):
-    current_label = train_labels[random.randint(0, 2)]
-    index = random.randint(1, 80)
-    file = test_path + "/" + current_label + " (" + str(index) + ").jpg"
-    print(file)
-    image = cv2.imread(file)
-    image = cv2.resize(image, fixed_size)
-    ####################################
-    fv_hu_moments = fd_hu_moments(image)
-    fv_haralick = fd_haralick(image)
-    fv_histogram = fd_histogram(image)
+## test all
+for testing_name in test_labels:
+    current_label = testing_name
+    # loop over the images in each sub-folder
+    for x in range(1, images_per_class + 1):
+        # get the image file name
+        file = test_path + "/" + current_label + " (" + str(x) + ").jpg"
+        image = cv2.imread(file)
+        image = cv2.resize(image, fixed_size)
+        ####################################
+        fv_hu_moments = fd_hu_moments(image)
+        fv_haralick = fd_haralick(image)
+        fv_histogram = fd_histogram(image)
+        ###################################
+        test_results.append(current_label)
+        test_features.append(np.hstack([fv_histogram, fv_hu_moments, fv_haralick]))
 
-    ###################################
-    test_results.append(current_label)
-    test_features.append(np.hstack([fv_histogram, fv_hu_moments, fv_haralick]))
+## random test
+# for x in range(1, 401):
+#     current_label = train_labels[random.randint(0, 5)]
+#     index = random.randint(1, 80)
+#     file = test_path + "/" + current_label + " (" + str(index) + ").jpg"
+#     image = cv2.imread(file)
+#     image = cv2.resize(image, fixed_size)
+#     ####################################
+#     fv_hu_moments = fd_hu_moments(image)
+#     fv_haralick = fd_haralick(image)
+#     fv_histogram = fd_histogram(image)
+#     ###################################
+#     test_results.append(current_label)
+#     test_features.append(np.hstack([fv_histogram, fv_hu_moments, fv_haralick]))
 
-
+## scale test features
 scaler = MinMaxScaler(feature_range=(0, 1))
 rescaled_features = scaler.fit_transform(test_features)
 
-# predict label of test image
+## predict label of test image
 le = LabelEncoder()
 y_result = le.fit_transform(test_results)
 y_pred = clf1.predict(rescaled_features)
-# print(y_result)
-# print(y_pred)
 print("RFC result: ", (y_pred == y_result).tolist().count(True)/len(y_result))
 
 y_pred = clf2.predict(rescaled_features)
-# print(y_pred)
 print("KNN result: ", (y_pred == y_result).tolist().count(True)/len(y_result))
 
 y_pred = clf3.predict(rescaled_features)
-# print(y_pred)
 print("GaussianNB result: ", (y_pred == y_result).tolist().count(True)/len(y_result))
 
 y_pred = clf4.predict(rescaled_features)
-# print(y_pred)
 print("LR result: ", (y_pred == y_result).tolist().count(True)/len(y_result))
 
 y_pred = clf5.predict(rescaled_features)
-# print(y_pred)
 print("LDA result: ", (y_pred == y_result).tolist().count(True)/len(y_result))
 
 y_pred = clf6.predict(rescaled_features)
-# print(y_pred)
 print("DTC result: ", (y_pred == y_result).tolist().count(True)/len(y_result))
 
 y_pred = clf7.predict(rescaled_features)
-# print(y_pred)
 print("SVM result: ", (y_pred == y_result).tolist().count(True)/len(y_result))
 
-
+## show test
 for x in range(1, 51):
     image_test_feature = []
-    current_label = train_labels[random.randint(0, 2)]
+    current_label = train_labels[random.randint(0, 4)]
     index = random.randint(1, 80)
     file = test_path + "/" + current_label + " (" + str(index) + ").jpg"
     print(file)
@@ -195,80 +185,10 @@ for x in range(1, 51):
     ###################################
     test_features.append(np.hstack([fv_histogram, fv_hu_moments, fv_haralick]))
     image_rescaled_features = scaler.fit_transform(test_features)
-    y_pred = clf3.predict(image_rescaled_features)[-1]
+
+    y_pred = clf7.predict(image_rescaled_features)[-1]
     print(y_pred)
     cv2.putText(image, train_labels[y_pred], (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 0, 255), 1)
     # display the output image
     plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     plt.show()
-# split the training and testing data
-# (trainDataGlobal, testDataGlobal, trainLabelsGlobal, testLabelsGlobal) = train_test_split(np.array(global_features), np.array(global_labels), test_size=test_size, random_state=seed)
-#
-# print("[STATUS] splitted train and test data...")
-# print("Train data  : {}".format(trainDataGlobal))
-# print("Test data   : {}".format(testDataGlobal))
-# print("Train labels: {}".format(trainLabelsGlobal))
-# print("Test labels : {}".format(testLabelsGlobal))
-
-# # 10-fold cross validation
-# for name, model in models:
-#     kfold = KFold(n_splits=10, random_state=seed)
-#     cv_results = cross_val_score(model, trainDataGlobal, trainLabelsGlobal, cv=kfold, scoring=scoring)
-#     results.append(cv_results)
-#     names.append(name)
-#     msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
-#     print(msg)
-
-# # boxplot algorithm comparison
-# fig = pyplot.figure()
-# fig.suptitle('Machine Learning algorithm comparison')
-# ax = fig.add_subplot(111)
-# pyplot.boxplot(results)
-# ax.set_xticklabels(names)
-# pyplot.show()
-
-# -----------------------------------
-# TESTING OUR MODEL
-# -----------------------------------
-
-# # to visualize results
-# import matplotlib.pyplot as plt
-#
-# # create the model - Random Forests
-# clf = RandomForestClassifier(n_estimators=num_trees, random_state=seed)
-#
-# # fit the training data to the model
-# clf.fit(trainDataGlobal, trainLabelsGlobal)
-#
-# # loop through the test images
-# for file in glob.glob(test_path + "/*.jpg"):
-#     # read the image
-#     image = cv2.imread(file)
-#
-#     # resize the image
-#     image = cv2.resize(image, fixed_size)
-#
-#     ####################################
-#     # Global Feature extraction
-#     ####################################
-#     fv_hu_moments = fd_hu_moments(image)
-#     fv_haralick = fd_haralick(image)
-#
-#     ###################################
-#     # Concatenate global features
-#     ###################################
-#     global_feature = np.hstack([fv_haralick, fv_hu_moments])
-#
-#     # scale features in the range (0-1)
-#     scaler = MinMaxScaler(feature_range=(0, 1))
-#     rescaled_feature = scaler.fit_transform(global_feature.reshape(1, -1))
-#
-#     # predict label of test image
-#     prediction = clf.predict(rescaled_feature.reshape(1, -1))[0]
-#
-#     # show predicted label on image
-#     cv2.putText(image, train_labels[prediction], (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 255), 3)
-#
-#     # display the output image
-#     plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-#     plt.show()

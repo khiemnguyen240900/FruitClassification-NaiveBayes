@@ -1,0 +1,6 @@
+Libraries:
+- opencv-contrib-lib
+- matplotlib
+- h5py
+- scikit-learn
+- mahotas

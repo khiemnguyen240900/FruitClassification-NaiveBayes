@@ -8,7 +8,6 @@ import mahotas
 import cv2
 import os
 import h5py
-import pandas as pd
 
 #--------------------
 # tunable-parameters
@@ -18,19 +17,19 @@ fixed_size       = tuple((100, 100))
 train_path       = "dataset/new_train"
 h5_data          = 'output/data.h5'
 h5_labels        = 'output/labels.h5'
-bins             = 8
+bins             = 8#2^8=512
 # empty lists to hold feature vectors and labels
 global_features = []
 labels = []
 # feature-descriptor-1: Hu Moments
-def fd_hu_moments(image):
+def fd_hu_moments(image):#
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     feature = cv2.HuMoments(cv2.moments(image)).flatten()
     return feature
 
 
 # feature-descriptor-2: Haralick Texture
-def fd_haralick(image):
+def fd_haralick(image):#
     # convert the image to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # compute the haralick texture feature vector
@@ -74,7 +73,7 @@ if __name__ == '__main__':
 
             # read the image and resize it to a fixed-size
             image = cv2.imread(file)
-            image = cv2.resize(image, fixed_size)
+            image = cv2.resize(image, fixed_size)#100x100
 
             ####################################
             # Global Feature extraction
@@ -85,7 +84,7 @@ if __name__ == '__main__':
             ###################################
             # Concatenate global features
             ###################################
-            global_feature = np.hstack([fv_histogram, fv_haralick, fv_hu_moments])
+            global_feature = np.hstack([fv_histogram, fv_haralick, fv_hu_moments]) # gop feature
             # update the list of labels and feature vectors
             labels.append(current_label)
             global_features.append(global_feature)
@@ -114,7 +113,7 @@ if __name__ == '__main__':
     print("[STATUS] target labels: {}".format(target))
     print("[STATUS] target labels shape: {}".format(target.shape))
 
-    # save the feature vector using HDF5
+    # save the feature vector using HDF5,xls,csv,cml
     h5f_data = h5py.File(h5_data, 'w')
     h5f_data.create_dataset('dataset_1', data=np.array(rescaled_features))
 

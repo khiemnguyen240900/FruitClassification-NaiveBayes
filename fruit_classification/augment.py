@@ -8,7 +8,8 @@ image_path = "dataset/train"
 new_image_path = "dataset/new_train"
 
 image_labels = os.listdir(image_path)
-image_labels.sort()
+image_labels = ['lime',]
+# image_labels.sort()
 print(image_labels)
 
 for name in image_labels:
